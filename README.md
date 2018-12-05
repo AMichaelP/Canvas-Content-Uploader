@@ -3,6 +3,8 @@ A graphical desktop application to assist Canvas LMS course designers in quickly
 
 Read the docs at https://canvas-content-uploader.readthedocs.io/en/latest/
 
+![alt text](https://github.com/AMichaelP/canvas_content_uploader/blob/master/docs/images/demo.png "Canvas Content Uploader")
+
 Features:
 * Create new wiki pages in a course using existing HTML files.
 * View or remove wiki pages existing within a course.
