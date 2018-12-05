@@ -1,4 +1,4 @@
-# canvas_content_uploader
+# Canvas Content Uploader
 A graphical desktop application to assist Canvas LMS course designers in quickly uploading, removing, and viewing course pages and files.
 
 Read the docs at https://canvas-content-uploader.readthedocs.io/en/latest/
