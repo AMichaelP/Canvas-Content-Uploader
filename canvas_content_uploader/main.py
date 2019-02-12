@@ -1,7 +1,7 @@
 import configparser
 from pathlib import Path
 
-from .root_components.MasterGui import MasterGui
+from canvas_content_uploader.root_components.MasterGui import MasterGui
 
 config_path = Path('config.ini')
 assert config_path.is_file()
