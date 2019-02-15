@@ -38,3 +38,5 @@ class ManageFilesTask(ContentManager):
         file_url = self.csh.get_file_url(course_id, file_id)
         webbrowser.open(file_url)
 
+    def cleanup_displayed_name(self, displayed_name):
+        return displayed_name

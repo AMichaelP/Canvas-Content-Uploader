@@ -73,6 +73,14 @@ class CanvasSessionHandler:
             if f.display_name == display_name:
                 return f.id
 
+    def publish_page_by_url(self, url: str, course_id: int):
+        course = self.get_course(course_id)
+        page = course.get_page(url)
+        page_dict = page.attributes
+        page_dict['published'] = True
+        self.delete_page_by_url(url, course_id)
+        course.create_page(page_dict)
+
     def delete_page_by_url(self, url: str, course_id: int):
         course = self.get_course(course_id)
         page = course.get_page(url)

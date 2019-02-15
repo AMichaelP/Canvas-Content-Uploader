@@ -8,7 +8,7 @@ class ManagePagesTask(ContentManager):
     View or remove wiki pages existing within the selected course.
     """
     def __init__(self, master_gui):
-        super().__init__(master_gui, 'Page')
+        super().__init__(master_gui, 'Page', has_publish_btn=True)
 
     def get_items(self):
         course_id = self.get_selected_course_id()
@@ -17,14 +17,31 @@ class ManagePagesTask(ContentManager):
         return p_list
 
     def get_display_names(self, item_list):
-        urls = list(x.url for x in item_list)
-        return urls
+        display_names = []
+        for x in item_list:
+            if x.published:
+                display_names.append('(P) ' + x.url)
+            else:
+                display_names.append(x.url)
+        return display_names
+
+    def cleanup_displayed_name(self, displayed_name):
+        if displayed_name.startswith('(P) '):
+            return displayed_name[len('(P) '):]
+        else:
+            return displayed_name
 
     def delete_item_by_displayed_name(self, displayed_name):
         super().delete_item_by_displayed_name(self)
         course_id = self.get_selected_course_id()
         url = displayed_name
         self.csh.delete_page_by_url(url, course_id)
+
+    def publish_item_by_displayed_name(self, displayed_name):
+        super().publish_item_by_displayed_name(self)
+        course_id = self.get_selected_course_id()
+        url = displayed_name
+        self.csh.publish_page_by_url(url, course_id)
 
     def recent_sort_key(self, item):
         k = item.updated_at

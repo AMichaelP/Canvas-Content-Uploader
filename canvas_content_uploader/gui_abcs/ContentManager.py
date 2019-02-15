@@ -21,12 +21,13 @@ class ContentManager(Task, ABC):
     """
     Abstract Base Class used to view and delete existing Canvas Content.
     """
-    def __init__(self, master_gui: 'MasterGui', item_name: str):
+    def __init__(self, master_gui: 'MasterGui', item_name: str, has_publish_btn=False):
         super().__init__(master_gui)
         self.item_name = item_name
         self.item_list_var = tkinter.StringVar()
         self.sort_var = tkinter.StringVar()
         self.sort_var.set(SortMode.ALPHA.value)
+        self.has_publish_btn = has_publish_btn
 
         self.item_frame = ttk.Frame(self.frame)
 
@@ -46,10 +47,19 @@ class ContentManager(Task, ABC):
         self.x_scroll.grid(row=1, column=0, sticky='NEW')
         self.y_scroll.grid(row=0, column=1, sticky='NSW')
 
-        self.delete_frame = ttk.Frame(self.frame)
-        self.delete_btn = ttk.Button(self.delete_frame, text=f'Delete Selected {self.item_name}(s)',
+        self.button_frame = ttk.Frame(self.frame)
+
+        if self.has_publish_btn:
+            self.publish_btn = ttk.Button(self.button_frame, text=f'Publish Selected {self.item_name}(s)',
+                                          command=self.publish_selected_items, state='disabled')
+
+        self.delete_btn = ttk.Button(self.button_frame, text=f'Delete Selected {self.item_name}(s)',
                                      command=self.delete_selected_items, state='disabled')
-        self.delete_btn.grid(row=0, column=0, padx=5, pady=5)
+
+        if self.has_publish_btn:
+            self.publish_btn.grid(row=0, column=0, padx=5, pady=5)
+
+        self.delete_btn.grid(row=1, column=0, padx=5, pady=5)
 
         self.combo_frame = ttk.Frame(self.frame)
         sort_options = list(x.value for x in SortMode)
@@ -60,7 +70,7 @@ class ContentManager(Task, ABC):
         self.sort_combo_lbl.grid(row=0, column=0, sticky='NW')
         self.sort_combo.grid(row=1, column=0, sticky='NW', padx=5, pady=5)
 
-        self.delete_frame.grid(row=1, column=2, sticky='SW')
+        self.button_frame.grid(row=1, column=2, sticky='SW')
         self.item_frame.grid(row=0, column=0, rowspan=2)
         self.combo_frame.grid(row=0, column=2, sticky='NW')
 
@@ -83,6 +93,13 @@ class ContentManager(Task, ABC):
         pass
 
     @abstractmethod
+    def cleanup_displayed_name(self, displayed_name):
+        pass
+
+    def publish_item_by_displayed_name(self, displayed_name):
+        pass
+
+    @abstractmethod
     def delete_item_by_displayed_name(self, displayed_name):
         pass
 
@@ -100,13 +117,23 @@ class ContentManager(Task, ABC):
 
     def enable_selection(self):
         self.item_listbox.configure(state='normal')
-        self.delete_btn.configure(state='enable')
+        self.enable_buttons()
         self.sort_combo_lbl.configure(state='enable')
         self.sort_combo.configure(state='readonly')
 
         course_id = self.get_selected_course_id()
         if course_id:
             self.load_and_sort_items()
+
+    def enable_buttons(self):
+        self.delete_btn.configure(state='enable')
+        if self.has_publish_btn:
+            self.publish_btn.configure(state='enable')
+
+    def disable_buttons(self):
+        if self.has_publish_btn:
+            self.publish_btn.configure(state='disable')
+        self.delete_btn.configure(state='disable')
 
     @show_progress_bar
     def load_and_sort_items(self):
@@ -120,6 +147,7 @@ class ContentManager(Task, ABC):
             item_list.sort(key=self.alpha_sort_key)
 
         displayed_items = self.get_display_names(item_list)
+
         self.item_list_var.set(displayed_items)
 
         self.clear_selections()
@@ -138,12 +166,20 @@ class ContentManager(Task, ABC):
         loaded_items = self.item_list_var.get()
 
         if not loaded_items:
-            self.delete_btn.configure(state='disable')
+            self.disable_buttons()
         else:
-            self.delete_btn.configure(state='enable')
+            self.enable_buttons()
 
     def get_selected_course_id(self):
         return super().get_selected_course_id()
+
+    @show_progress_bar
+    def publish_selected_items(self):
+        selected_items = self.get_selected_items()
+        for displayed_name in selected_items:
+            self.publish_item_by_displayed_name(displayed_name)
+
+        self.load_and_sort_items()
 
     def delete_selected_items(self):
         selected_items = self.get_selected_items()
@@ -158,7 +194,12 @@ class ContentManager(Task, ABC):
             self.load_and_sort_items()
 
     def get_selected_items(self):
-        return [self.item_listbox.get(x) for x in self.item_listbox.curselection()]
+        selected = []
+        for x in self.item_listbox.curselection():
+            item = self.item_listbox.get(x)
+            item = self.cleanup_displayed_name(item)
+            selected.append(item)
+        return selected
 
     def get_item_index_by_displayed_name(self, name):
         index = self.item_listbox.get(0, "end").index(name)
