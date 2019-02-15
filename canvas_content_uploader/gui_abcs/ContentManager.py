@@ -173,7 +173,6 @@ class ContentManager(Task, ABC):
     def get_selected_course_id(self):
         return super().get_selected_course_id()
 
-    @show_progress_bar
     def publish_selected_items(self):
         selected_items = self.get_selected_items()
         for displayed_name in selected_items:
