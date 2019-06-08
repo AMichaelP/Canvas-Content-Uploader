@@ -29,6 +29,9 @@ class ContentManager(Task, ABC):
         self.sort_var.set(SortMode.ALPHA.value)
         self.has_publish_btn = has_publish_btn
 
+        if self.has_publish_btn:
+            self.PUBLISHED_STR = '(P) '
+
         self.item_frame = ttk.Frame(self.frame)
 
         self.item_listbox = tkinter.Listbox(self.item_frame, width=30, relief='sunken', state='disabled',

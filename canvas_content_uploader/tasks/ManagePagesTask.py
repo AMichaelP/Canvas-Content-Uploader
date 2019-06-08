@@ -4,6 +4,7 @@ from canvas_content_uploader.gui_abcs.ContentManager import ContentManager
 
 
 class ManagePagesTask(ContentManager):
+
     """
     View or remove wiki pages existing within the selected course.
     """
@@ -20,14 +21,14 @@ class ManagePagesTask(ContentManager):
         display_names = []
         for x in item_list:
             if x.published:
-                display_names.append('(P) ' + x.url)
+                display_names.append(self.PUBLISHED_STR + x.url)
             else:
                 display_names.append(x.url)
         return display_names
 
     def cleanup_displayed_name(self, displayed_name):
-        if displayed_name.startswith('(P) '):
-            return displayed_name[len('(P) '):]
+        if displayed_name.startswith(self.PUBLISHED_STR):
+            return displayed_name[len(self.PUBLISHED_STR):]
         else:
             return displayed_name
 
