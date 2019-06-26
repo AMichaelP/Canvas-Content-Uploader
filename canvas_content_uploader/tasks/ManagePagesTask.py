@@ -54,6 +54,6 @@ class ManagePagesTask(ContentManager):
 
     def double_click_callback(self):
         course_id = self.get_selected_course_id()
-        page_short_url = self.cleanup_displayed_name(self.get_selected_item())
+        page_short_url = self.get_selected_item()
         page_url = self.csh.get_page_url(course_id, page_short_url)
         webbrowser.open(page_url)

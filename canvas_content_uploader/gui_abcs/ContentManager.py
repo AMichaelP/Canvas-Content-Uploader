@@ -21,13 +21,14 @@ class ContentManager(Task, ABC):
     """
     Abstract Base Class used to view and delete existing Canvas Content.
     """
-    def __init__(self, master_gui: 'MasterGui', item_name: str, has_publish_btn=False):
+    def __init__(self, master_gui: 'MasterGui', item_name: str, has_publish_btn=False, has_download_btn=False):
         super().__init__(master_gui)
         self.item_name = item_name
         self.item_list_var = tkinter.StringVar()
         self.sort_var = tkinter.StringVar()
         self.sort_var.set(SortMode.ALPHA.value)
         self.has_publish_btn = has_publish_btn
+        self.has_download_btn = has_download_btn
 
         if self.has_publish_btn:
             self.PUBLISHED_STR = '(P) '
@@ -56,13 +57,20 @@ class ContentManager(Task, ABC):
             self.publish_btn = ttk.Button(self.button_frame, text=f'Publish Selected {self.item_name}(s)',
                                           command=self.publish_selected_items, state='disabled')
 
+        if self.has_download_btn:
+            self.download_btn = ttk.Button(self.button_frame, text=f'Publish Selected {self.item_name}(s)',
+                                           command=self.publish_selected_items, state='disabled')
+
         self.delete_btn = ttk.Button(self.button_frame, text=f'Delete Selected {self.item_name}(s)',
                                      command=self.delete_selected_items, state='disabled')
 
         if self.has_publish_btn:
             self.publish_btn.grid(row=0, column=0, padx=5, pady=5)
 
-        self.delete_btn.grid(row=1, column=0, padx=5, pady=5)
+        if self.has_download_btn:
+            self.download_btn.grid(row=1, column=0, padx=5, pady=5)
+
+        self.delete_btn.grid(row=2, column=0, padx=5, pady=5)
 
         self.combo_frame = ttk.Frame(self.frame)
         sort_options = list(x.value for x in SortMode)
@@ -113,6 +121,8 @@ class ContentManager(Task, ABC):
     def get_selected_item(self):
         index = self.item_listbox.curselection()
         item = self.item_listbox.get(index)
+        if self.has_publish_btn:
+            return self.cleanup_displayed_name(item)
         return item
 
     def handle_course_change(self):
