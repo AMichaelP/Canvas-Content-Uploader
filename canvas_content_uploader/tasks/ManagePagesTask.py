@@ -1,8 +1,9 @@
+import urllib.parse
 import webbrowser
 from pathlib import Path
+from tkinter import messagebox
 
 from canvas_content_uploader.gui_abcs.ContentManager import ContentManager
-from tkinter import messagebox
 
 
 class ManagePagesTask(ContentManager):
@@ -54,7 +55,8 @@ class ManagePagesTask(ContentManager):
         page = self.csh.get_page(course_id, url)
         page_title = page.title
         page_content = self.csh.get_page_content(page)
-        new_file = Path(output_dir).joinpath(page_title).with_suffix(page_file_suffix)
+        file_name = urllib.parse.quote_plus(page_title)
+        new_file = Path(output_dir).joinpath(file_name).with_suffix(page_file_suffix)
         if new_file.exists():
             answer = messagebox.askokcancel(f'File Already Exists',
                                             message=f'The following page already exists:'
@@ -63,7 +65,7 @@ class ManagePagesTask(ContentManager):
                                             icon='warning')
             if not answer:
                 return
-        new_file.write_text(page_content)
+        new_file.write_text(page_content, encoding='utf-8')
 
     def recent_sort_key(self, item):
         k = item.updated_at

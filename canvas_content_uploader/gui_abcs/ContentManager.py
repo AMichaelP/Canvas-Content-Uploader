@@ -208,10 +208,17 @@ class ContentManager(Task, ABC):
         output_dir = filedialog.askdirectory(initialdir='/', title='Select Folder')
 
         for displayed_name in selected_items:
-            self.download_item_by_displayed_name(displayed_name, output_dir)
+            try:
+                self.download_item_by_displayed_name(displayed_name, output_dir)
+            except Exception as e:
+                messagebox.showerror('Error',
+                                     f'Error downloading file:'
+                                     f'\n\n{displayed_name}'
+                                     f'\n\nMessage: {e}')
+                continue
 
         messagebox.showinfo('Download Complete',
-                            f'Saved {len(selected_items)} {self.item_name}(s) to {Path(output_dir).absolute()}')
+                            f'Finished saving {self.item_name}(s) to {Path(output_dir).absolute()}')
 
     def delete_selected_items(self):
         selected_items = self.get_selected_items()

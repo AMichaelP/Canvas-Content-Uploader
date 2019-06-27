@@ -1,4 +1,5 @@
 from pathlib import Path
+import urllib.parse
 
 from canvas_content_uploader.gui_abcs.ContentUploader import ContentUploader
 
@@ -36,4 +37,4 @@ class UploadPagesTask(ContentUploader):
         return page
 
     def get_title_from_file_path(self, file_path: Path) -> str:
-        return file_path.stem
+        return urllib.parse.unquote_plus(file_path.stem)

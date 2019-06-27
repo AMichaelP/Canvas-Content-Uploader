@@ -4,6 +4,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox, filedialog, simpledialog
 from typing import List
 from typing import TYPE_CHECKING
+import urllib.parse
 
 from canvasapi.exceptions import BadRequest
 
@@ -87,6 +88,7 @@ class ContentUploader(Task, ABC):
         force_overwrite = self.overwrite_checkbox_var.get()
 
         for path in self.queued_files:
+            path
             try:
                 if self.check_for_conflicts:
                     self.upload_item_with_conflict_check(existing_titles, force_overwrite, path)
@@ -100,9 +102,16 @@ class ContentUploader(Task, ABC):
                                          f'The following file is too large to upload:'
                                          f'\n\n{path}')
                     continue
+
+            except Exception as e:
+                messagebox.showerror('Error',
+                                     f'Error uploading file:'
+                                     f'\n\n{path}'
+                                     f'\n\nMessage: {e}')
+
         messagebox.showinfo('Upload Complete',
                             f'Finished uploading {self.item_name}(s)')
-        self.queued_files = []
+        self.queued_files: List['Path'] = []
         self.update_widgets()
 
     def upload_item_without_conflict_check(self, path: Path):
