@@ -1,7 +1,8 @@
 import tkinter
 from abc import ABC, abstractmethod
 from enum import Enum
-from tkinter import ttk, messagebox
+from pathlib import Path
+from tkinter import ttk, messagebox, filedialog
 from typing import TYPE_CHECKING
 
 from canvasapi.exceptions import Unauthorized
@@ -58,8 +59,8 @@ class ContentManager(Task, ABC):
                                           command=self.publish_selected_items, state='disabled')
 
         if self.has_download_btn:
-            self.download_btn = ttk.Button(self.button_frame, text=f'Publish Selected {self.item_name}(s)',
-                                           command=self.publish_selected_items, state='disabled')
+            self.download_btn = ttk.Button(self.button_frame, text=f'Download Selected {self.item_name}(s)',
+                                           command=self.download_selected_items, state='disabled')
 
         self.delete_btn = ttk.Button(self.button_frame, text=f'Delete Selected {self.item_name}(s)',
                                      command=self.delete_selected_items, state='disabled')
@@ -110,6 +111,9 @@ class ContentManager(Task, ABC):
     def publish_item_by_displayed_name(self, displayed_name):
         pass
 
+    def download_item_by_displayed_name(self, displayed_name, output_dir):
+        pass
+
     @abstractmethod
     def delete_item_by_displayed_name(self, displayed_name):
         pass
@@ -142,10 +146,14 @@ class ContentManager(Task, ABC):
         self.delete_btn.configure(state='enable')
         if self.has_publish_btn:
             self.publish_btn.configure(state='enable')
+        if self.has_download_btn:
+            self.download_btn.configure(state='enable')
 
     def disable_buttons(self):
         if self.has_publish_btn:
             self.publish_btn.configure(state='disable')
+        if self.has_download_btn:
+            self.download_btn.configure(state='disable')
         self.delete_btn.configure(state='disable')
 
     @show_progress_bar
@@ -192,6 +200,18 @@ class ContentManager(Task, ABC):
             self.publish_item_by_displayed_name(displayed_name)
 
         self.load_and_sort_items()
+
+    @show_progress_bar
+    def download_selected_items(self):
+        selected_items = self.get_selected_items()
+
+        output_dir = filedialog.askdirectory(initialdir='/', title='Select Folder')
+
+        for displayed_name in selected_items:
+            self.download_item_by_displayed_name(displayed_name, output_dir)
+
+        messagebox.showinfo('Download Complete',
+                            f'Saved {len(selected_items)} {self.item_name}(s) to {Path(output_dir).absolute()}')
 
     def delete_selected_items(self):
         selected_items = self.get_selected_items()

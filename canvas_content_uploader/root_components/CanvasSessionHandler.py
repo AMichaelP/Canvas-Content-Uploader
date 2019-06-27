@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 import canvasapi
 import canvasapi.course
@@ -28,6 +28,20 @@ class CanvasSessionHandler:
 
         course_url = f'{base_url}/courses/{course_id}'
         return course_url
+
+    def get_page(self, course: Union[int, canvasapi.course.Course], page_url: str) -> canvasapi.page.Page:
+        if isinstance(course, int):
+            c = self.get_course(course)
+            page = c.get_page(page_url)
+        else:
+            page = course.get_page(page_url)
+        return page
+
+    @staticmethod
+    def get_page_content(page: canvasapi.page.Page) -> str:
+        r = page.show_latest_revision()
+        content = r.body
+        return content
 
     def get_page_url(self, course_id: int, page_short_url: str) -> str:
         course_url = self.get_course_url(course_id)
