@@ -52,8 +52,9 @@ class ManagePagesTask(ContentManager):
         course_id = self.get_selected_course_id()
         url = displayed_name
         page = self.csh.get_page(course_id, url)
+        page_title = page.title
         page_content = self.csh.get_page_content(page)
-        new_file = Path(output_dir).joinpath(url).with_suffix(page_file_suffix)
+        new_file = Path(output_dir).joinpath(page_title).with_suffix(page_file_suffix)
         if new_file.exists():
             answer = messagebox.askokcancel(f'File Already Exists',
                                             message=f'The following page already exists:'
